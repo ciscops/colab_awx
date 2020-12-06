@@ -6,6 +6,12 @@
   collections:
     - awx.awx
   tasks:
+  - name: Add COLABOT account
+    tower_user:
+      username: "{{ colabot_username }}"
+      password: "{{ colabot_password }}"
+      email: "{{ colabot_email }}"
+      state: present
   - name: Create Project COLABOT
     tower_project:
       name: "COLABOT"
@@ -36,7 +42,7 @@
       name: COLABOT AWS
       organization: Default
       state: present
-      credential_type: aws
+      kind: aws
       inputs:
         username: "{{ AWS_ACCESS_KEY_ID }}"
         password: "{{ AWS_SECRET_ACCESS_KEY }}"
@@ -45,17 +51,26 @@
       name: AWS Group
       description: AWS Group
       kind: cloud
-      inputs: {"fields": [{"id": "aws_iam_group","type": "string","label": "aws_iam_group"}], "required": ["aws_iam_group"]}
-      injectors: "{{ {'extra_vars': {'aws_iam_group': '{{ aws_iam_group }}' }} }}"
+      inputs: {"fields": [{"id": "aws_group","type": "string","label": "aws_group"}], "required": ["aws_group"]}
+      injectors: "{{ {'extra_vars': {'aws_iam_group': '{{ aws_group }}' }} }}"
       state: present
       validate_certs: false
+  - name: Add AWS Group credential
+    tower_credential:
+      name: AWS Group
+      organization: Default
+      state: present
+      credential_type: AWS Group
+      inputs:
+        aws_group: "{{ aws_iam_group }}"
   - name: Add WxT credential type
     tower_credential_type:
       name: WxT token
       description: WxT token
       kind: cloud
-      inputs: {"fields": [{"id": "wxt_bearer","type": "string","label": "wxt_bearer"}], "required": ["wxt_bearer"]}
-      injectors: "{{ {'extra_vars': {'wxt_bearer': '{{ wxt_bearer }}' }} }}"
+      inputs: {"fields": [{"id": "wxt_token","type": "string","label": "wxt_token",
+                           "secret": true}], "required": ["wxt_token"]}
+      injectors: "{{ {'extra_vars': {'wxt_bearer': '{{ wxt_token }}' }} }}"
       state: present
       validate_certs: false
   - name: Add COLABOT PROD credential
@@ -65,7 +80,7 @@
       state: present
       credential_type: WxT token
       inputs:
-        wxt_bearer: "{{ colabot_prod_wxt }}"
+        wxt_token: "{{ colabot_prod_wxt }}"
   - name: Add COLABOT DEV credential
     tower_credential:
       name: COLABOT DEV
@@ -73,7 +88,7 @@
       state: present
       credential_type: WxT token
       inputs:
-        wxt_bearer: "{{ colabot_dev_wxt }}"
+        wxt_token: "{{ colabot_dev_wxt }}"
   - name: Add vCenter credential type
     tower_credential_type:
       name: Account vCenter
@@ -83,12 +98,12 @@
       injectors: "{{ {'extra_vars': {'vcenter_admin_account': '{{ username }}', 'vcenter_admin_password': '{{ password }}', 'vcenter_sso_group': '{{ group }}' }} }}"
       state: present
       validate_certs: false
-  - name: Add CML credential
+  - name: Add vCenter credential
     tower_credential:
-      name: CML Admin
+      name: COLAB vCenter
       organization: Default
       state: present
-      credential_type: Account CML
+      credential_type: Account vCenter
       inputs:
         username: "{{ vcenter_admin_account }}"
         password: "{{ vcenter_admin_password }}"

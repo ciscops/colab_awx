@@ -1,5 +1,5 @@
 # COLAB AWX
-This repo contains ansible playbook for the COLAB AWX server
+This repo contains an ansible playbook for the COLAB AWX server
 
 ## Installation
 Install awx collection
@@ -23,6 +23,9 @@ Configure appropriate environment variables
     export vcenter_sso_group=
     export meraki_auth_vault=
     export meraki_netid_vault=
+    export colabot_email=
+    export colabot_username=
+    export colabot_password=
 
 Run playbook
 
