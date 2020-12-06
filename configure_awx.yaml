@@ -1,0 +1,113 @@
+---
+- name: Playbook for Using a Variety of Tower Modules
+  hosts: localhost
+  gather_facts: false
+  vars_files: "./secrets.yaml"
+  collections:
+    - awx.awx
+  tasks:
+  - name: Create Project COLABOT
+    tower_project:
+      name: "COLABOT"
+      organization: "Default"
+      scm_update_on_launch: yes
+      scm_type: git
+      scm_url: https://github.com/ciscops/CoLab_playbooks.git
+  - name: Add Account CML credential type
+    tower_credential_type:
+      name: Account CML
+      description: Account CML
+      kind: cloud
+      inputs: "{{ lookup('file', 'credential_inputs_account_password.json') }}"
+      injectors: "{{ {'extra_vars': {'cml_account': '{{ username }}', 'cml_password': '{{ password }}' }} }}"
+      state: present
+      validate_certs: false
+  - name: Add CML credential
+    tower_credential:
+      name: CML Admin
+      organization: Default
+      state: present
+      credential_type: Account CML
+      inputs:
+        username: "{{ cml_account }}"
+        password: "{{ cml_password }}"
+  - name: Add AWS credential
+    tower_credential:
+      name: COLABOT AWS
+      organization: Default
+      state: present
+      credential_type: aws
+      inputs:
+        username: "{{ AWS_ACCESS_KEY_ID }}"
+        password: "{{ AWS_SECRET_ACCESS_KEY }}"
+  - name: Add AWS Group credential type
+    tower_credential_type:
+      name: AWS Group
+      description: AWS Group
+      kind: cloud
+      inputs: {"fields": [{"id": "aws_iam_group","type": "string","label": "aws_iam_group"}], "required": ["aws_iam_group"]}
+      injectors: "{{ {'extra_vars': {'aws_iam_group': '{{ aws_iam_group }}' }} }}"
+      state: present
+      validate_certs: false
+  - name: Add WxT credential type
+    tower_credential_type:
+      name: WxT token
+      description: WxT token
+      kind: cloud
+      inputs: {"fields": [{"id": "wxt_bearer","type": "string","label": "wxt_bearer"}], "required": ["wxt_bearer"]}
+      injectors: "{{ {'extra_vars': {'wxt_bearer': '{{ wxt_bearer }}' }} }}"
+      state: present
+      validate_certs: false
+  - name: Add COLABOT PROD credential
+    tower_credential:
+      name: COLABOT PROD
+      organization: Default
+      state: present
+      credential_type: WxT token
+      inputs:
+        wxt_bearer: "{{ colabot_prod_wxt }}"
+  - name: Add COLABOT DEV credential
+    tower_credential:
+      name: COLABOT DEV
+      organization: Default
+      state: present
+      credential_type: WxT token
+      inputs:
+        wxt_bearer: "{{ colabot_dev_wxt }}"
+  - name: Add vCenter credential type
+    tower_credential_type:
+      name: Account vCenter
+      description: Account vCenter
+      kind: cloud
+      inputs: "{{ lookup('file', 'credential_inputs_account_password_group.json') }}"
+      injectors: "{{ {'extra_vars': {'vcenter_admin_account': '{{ username }}', 'vcenter_admin_password': '{{ password }}', 'vcenter_sso_group': '{{ group }}' }} }}"
+      state: present
+      validate_certs: false
+  - name: Add CML credential
+    tower_credential:
+      name: CML Admin
+      organization: Default
+      state: present
+      credential_type: Account CML
+      inputs:
+        username: "{{ vcenter_admin_account }}"
+        password: "{{ vcenter_admin_password }}"
+        group: "{{ vcenter_sso_group }}"
+  - name: Add Meraki credential type
+    tower_credential_type:
+      name: Account Meraki
+      description: Account Meraki
+      kind: cloud
+      inputs: "{{ lookup('file', 'credential_inputs_account_password.json') }}"
+      injectors: "{{ {'extra_vars': {'meraki_netid_vault': '{{ username }}', 'meraki_auth_vault': '{{ password }}' }} }}"
+      state: present
+      validate_certs: false
+  - name: Add Meraki credential
+    tower_credential:
+      name: COLAB Meraki
+      organization: Default
+      state: present
+      credential_type: Account Meraki
+      inputs:
+        username: "{{ meraki_netid_vault }}"
+        password: "{{ meraki_auth_vault }}"
