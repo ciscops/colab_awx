@@ -85,7 +85,7 @@
       description: AWS Group
       kind: cloud
       inputs: {"fields": [{"id": "aws_group","type": "string","label": "aws_group"}], "required": ["aws_group"]}
-      injectors: "{{ {'extra_vars': {'aws_iam_group': '{{ aws_group }}' }} }}"
+      injectors: "{{ {'extra_vars': {'aws_iam_group_vault': '{{ aws_group }}' }} }}"
       state: present
       validate_certs: false
   - name: Add AWS Group credential
@@ -184,5 +184,34 @@
         'vcenter_user_group': '{{ vcenter_sso_group_vault }}',
         'vcenter_admin_username': '{{ vcenter_admin_account_vault }}',
         'vcenter_admin_password': '{{ vcenter_admin_password_vault }}',
+        'aws_access_key': '{{ lookup(\"env\",\"AWS_ACCESS_KEY_ID\") }}',
+        'aws_secret_key': '{{ lookup(\"env\",\"AWS_SECRET_ACCESS_KEY\") }}'} }}"
+  - name: Create job add_aws_and_reset_passwords
+    tower_job_template:
+      name: "add_aws_and_reset_passwords_dev"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "add_aws_and_reset_passwords.yaml"
+      credentials:
+        - "CML Admin"
+        - "COLAB Meraki"
+        - "COLABOT AWS"
+        - "COLABOT DEV"
+        - "COLAB vCenter"
+        - "AWS Group"
+      state: "present"
+      ask_variables_on_launch: yes
+      extra_vars:
+        "{{ {'cml_admin_account': '{{ cml_account }}',
+        'cml_admin_password': '{{ cml_password }}',
+        'meraki_key': '{{ meraki_auth_vault }}',
+        'networkId': '{{ meraki_netid_vault }}',
+        'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'vcenter_user_group': '{{ vcenter_sso_group_vault }}',
+        'vcenter_admin_username': '{{ vcenter_admin_account_vault }}',
+        'vcenter_admin_password': '{{ vcenter_admin_password_vault }}',
+        'iam_group': '{{ aws_iam_group_vault }}',
         'aws_access_key': '{{ lookup(\"env\",\"AWS_ACCESS_KEY_ID\") }}',
         'aws_secret_key': '{{ lookup(\"env\",\"AWS_SECRET_ACCESS_KEY\") }}'} }}"
