@@ -6,6 +6,39 @@
   collections:
     - awx.awx
   tasks:
+  - name: Add inventory
+    tower_inventory:
+      name: "COLABOT"
+      description: "For CoLab"
+      organization: "Default"
+      state: present
+  - name: Add host localhost
+    tower_host:
+      name: localhost
+      description: "Local Host Group"
+      inventory: "COLABOT"
+      state: present
+      variables:
+        ansible_connection: local
+        ansible_python_interpreter: python
+  - name: Add host loginserver
+    tower_host:
+      name: '{{ login_server_hostname }}'
+      description: "login server"
+      inventory: "COLABOT"
+      state: present
+      variables:
+        ansible_connection: ssh
+        ansible_ssh_user: '{{ login_server_username }}'
+        ansible_ssh_pass: '{{ login_server_password }}'
+  - name: Add group login
+    tower_group:
+      name: login
+      description: "Login Host Group"
+      inventory: "COLABOT"
+      state: present
+      hosts:
+        - '{{ login_server_hostname }}'
   - name: Add COLABOT account
     tower_user:
       username: "{{ colabot_username }}"
@@ -16,7 +49,7 @@
     tower_project:
       name: "COLABOT"
       organization: "Default"
-      scm_update_on_launch: yes
+      scm_update_on_launch: no
       scm_type: git
       scm_url: https://github.com/ciscops/CoLab_playbooks.git
   - name: Add Account CML credential type
@@ -70,7 +103,7 @@
       kind: cloud
       inputs: {"fields": [{"id": "wxt_token","type": "string","label": "wxt_token",
                            "secret": true}], "required": ["wxt_token"]}
-      injectors: "{{ {'extra_vars': {'wxt_bearer': '{{ wxt_token }}' }} }}"
+      injectors: "{{ {'extra_vars': {'wxt_bearer_vault': '{{ wxt_token }}' }} }}"
       state: present
       validate_certs: false
   - name: Add COLABOT PROD credential
@@ -95,7 +128,7 @@
       description: Account vCenter
       kind: cloud
       inputs: "{{ lookup('file', 'credential_inputs_account_password_group.json') }}"
-      injectors: "{{ {'extra_vars': {'vcenter_admin_account': '{{ username }}', 'vcenter_admin_password': '{{ password }}', 'vcenter_sso_group': '{{ group }}' }} }}"
+      injectors: "{{ {'extra_vars': {'vcenter_admin_account_vault': '{{ username }}', 'vcenter_admin_password_vault': '{{ password }}', 'vcenter_sso_group_vault': '{{ group }}' }} }}"
       state: present
       validate_certs: false
   - name: Add vCenter credential
@@ -126,3 +159,30 @@
       inputs:
         username: "{{ meraki_netid_vault }}"
         password: "{{ meraki_auth_vault }}"
+  - name: Create job add_base_accounts_and_reset_passwords
+    tower_job_template:
+      name: "add_base_accounts_and_reset_passwords_dev"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "add_base_accounts_and_reset_passwords.yaml"
+      credentials:
+        - "CML Admin"
+        - "COLAB Meraki"
+        - "COLABOT AWS"
+        - "COLABOT DEV"
+        - "COLAB vCenter"
+      state: "present"
+      ask_variables_on_launch: yes
+      extra_vars:
+        "{{ {'cml_admin_account': '{{ cml_account }}',
+        'cml_admin_password': '{{ cml_password }}',
+        'meraki_key': '{{ meraki_auth_vault }}',
+        'networkId': '{{ meraki_netid_vault }}',
+        'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'vcenter_user_group': '{{ vcenter_sso_group_vault }}',
+        'vcenter_admin_username': '{{ vcenter_admin_account_vault }}',
+        'vcenter_admin_password': '{{ vcenter_admin_password_vault }}',
+        'aws_access_key': '{{ lookup(\"env\",\"AWS_ACCESS_KEY_ID\") }}',
+        'aws_secret_key': '{{ lookup(\"env\",\"AWS_SECRET_ACCESS_KEY\") }}'} }}"
