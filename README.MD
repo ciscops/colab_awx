@@ -30,8 +30,12 @@ Configure appropriate environment variables
     export login_server_username=
     export login_server_password=
 
+Copy appropriate kubeconfig.yaml file to ./kubeconfig.yaml
+
+
 Run playbook
 
     ansible-playbook configure_awx.yaml
 
-
+In AWX Web Console, click users, click COLABOT, click Permissions, click add permissions, click job templates, 
+select all jobs appropriate for COLABOT, give Execute role, and SAVE.

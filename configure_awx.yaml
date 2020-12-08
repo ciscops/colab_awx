@@ -377,3 +377,87 @@
         'vcenter_admin_password': '{{ vcenter_admin_password_vault }}',
         'aws_access_key': '{{ lookup(\"env\",\"AWS_ACCESS_KEY_ID\") }}',
         'aws_secret_key': '{{ lookup(\"env\",\"AWS_SECRET_ACCESS_KEY\") }}'} }}"
+  - name: Install python package
+    pip:
+      name:  openshift
+  - name: Add kubeconfig credential type
+    tower_credential_type:
+      name: KUBECONFIG
+      description: KUBECONFIG
+      kind: cloud
+      inputs: "{{ lookup('file', 'credential_inputs_kubeconfig.json') }}"
+      injectors: "{{ {'extra_vars': {'kubeconfig_from_vault': '{{ file }}'}} }}"
+      state: present
+      validate_certs: false
+  - name: Kubernetes credential
+    tower_credential:
+      name: Kubernetes
+      organization: Default
+      state: present
+      credential_type: KUBECONFIG
+      inputs:
+        file: "{{ kubeconfig_from_file }}"
+  - name: Create job deploy_gitlab Prod
+    tower_job_template:
+      name: "deploy_gitlab_prod"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "deploy_gitlab.yaml"
+      credentials:
+        - "COLABOT PROD"
+        - "Kubernetes"
+      state: "present"
+      ask_variables_on_launch: yes
+      extra_vars:
+        "{{ {'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}'} }}"
+  - name: Create job deploy_gitlab Dev
+    tower_job_template:
+      name: "deploy_gitlab_dev"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "deploy_gitlab.yaml"
+      credentials:
+        - "COLABOT DEV"
+        - "Kubernetes"
+      state: "present"
+      ask_variables_on_launch: yes
+      extra_vars:
+        "{{ {'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}'} }}"
+  - name: Create job remove_gitlab Prod
+    tower_job_template:
+      name: "remove_gitlab_prod"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "remove_gitlab.yaml"
+      credentials:
+        - "COLABOT PROD"
+        - "Kubernetes"
+      state: "present"
+      ask_variables_on_launch: yes
+      extra_vars:
+        "{{ {'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}'} }}"
+  - name: Create job remove_gitlab Dev
+    tower_job_template:
+      name: "remove_gitlab_dev"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "remove_gitlab.yaml"
+      credentials:
+        - "COLABOT DEV"
+        - "Kubernetes"
+      state: "present"
+      ask_variables_on_launch: yes
+      extra_vars:
+        "{{ {'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}'} }}"
