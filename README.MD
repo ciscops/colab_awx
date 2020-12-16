@@ -15,6 +15,9 @@ Configure appropriate environment variables
     export cml_password=
     export AWS_ACCESS_KEY_ID=
     export AWS_SECRET_ACCESS_KEY=
+    export AWS_ACCESS_KEY_ID_PROD=
+    export AWS_SECRET_ACCESS_KEY_PROD=
+    export AWS_REGION_PROD=
     export aws_iam_group=
     export colabot_dev_wxt=
     export colabot_prod_wxt=
