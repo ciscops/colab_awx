@@ -29,6 +29,7 @@ Configure appropriate environment variables
     export colabot_email=
     export colabot_username=
     export colabot_password=
+    export colabot_cipher=
     export login_server_hostname=
     export login_server_username=
     export login_server_password=
