@@ -315,10 +315,12 @@
         - "COLABOT DEV"
         - "COLAB vCenter"
         - "COLABOT AWS PROD"
+        - "Kubernetes"
       state: "present"
       ask_variables_on_launch: yes
       extra_vars:
         "{{ {'cml_admin_account': '{{ cml_account }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}',
         'cml_admin_password': '{{ cml_password }}',
         'meraki_key': '{{ meraki_auth_vault }}',
         'networkId': '{{ meraki_netid_vault }}',
@@ -446,10 +448,12 @@
         - "COLABOT PROD"
         - "COLAB vCenter"
         - "COLABOT AWS PROD"
+        - "Kubernetes"
       state: "present"
       ask_variables_on_launch: yes
       extra_vars:
         "{{ {'cml_admin_account': '{{ cml_account }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}',
         'cml_admin_password': '{{ cml_password }}',
         'meraki_key': '{{ meraki_auth_vault }}',
         'networkId': '{{ meraki_netid_vault }}',
