@@ -451,6 +451,7 @@
         - "Kubernetes"
       state: "present"
       ask_variables_on_launch: yes
+      concurrent_jobs_enabled: yes
       extra_vars:
         "{{ {'cml_admin_account': '{{ cml_account }}',
         'kubeconfig': '{{ kubeconfig_from_vault }}',
