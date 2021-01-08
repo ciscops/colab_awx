@@ -596,3 +596,73 @@
         'aws_access_key_prod': '{{ aws_prod_key_vault }}',
         'aws_secret_key_prod': '{{ aws_prod_token_vault }}',
         'aws_region_prod': '{{ aws_prod_region_vault }}'} }}"
+  - name: Create job bot_delete_all_accounts Prod
+    tower_job_template:
+      name: "bot_delete_all_accounts_prod"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "bot_delete_all_accounts.yaml"
+      credentials:
+        - "CML Admin"
+        - "COLAB Meraki"
+        - "COLABOT AWS"
+        - "COLABOT PROD"
+        - "COLAB vCenter"
+        - "COLABOT AWS PROD"
+        - "Kubernetes"
+        - "COLABot Cipher"
+      state: "present"
+      ask_variables_on_launch: yes
+      concurrent_jobs_enabled: yes
+      extra_vars:
+        "{{ {'cml_admin_account': '{{ cml_account }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}',
+        'cml_admin_password': '{{ cml_password }}',
+        'meraki_key': '{{ meraki_auth_vault }}',
+        'networkId': '{{ meraki_netid_vault }}',
+        'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'colabot_cipher': '{{ cipher_vault }}',
+        'vcenter_admin_username': '{{ vcenter_admin_account_vault }}',
+        'vcenter_admin_password': '{{ vcenter_admin_password_vault }}',
+        'aws_access_key': '{{ lookup(\"env\",\"AWS_ACCESS_KEY_ID\") }}',
+        'aws_secret_key': '{{ lookup(\"env\",\"AWS_SECRET_ACCESS_KEY\") }}',
+        'aws_access_key_prod': '{{ aws_prod_key_vault }}',
+        'aws_secret_key_prod': '{{ aws_prod_token_vault }}',
+        'aws_region_prod': '{{ aws_prod_region_vault }}'} }}"
+  - name: Create job bot_delete_all_accounts Dev
+    tower_job_template:
+      name: "bot_delete_all_accounts_dev"
+      job_type: "run"
+      organization: "Default"
+      inventory: "COLABOT"
+      project: "COLABOT"
+      playbook: "bot_delete_all_accounts.yaml"
+      credentials:
+        - "CML Admin"
+        - "COLAB Meraki"
+        - "COLABOT AWS"
+        - "COLABOT DEV"
+        - "COLAB vCenter"
+        - "COLABOT AWS PROD"
+        - "Kubernetes"
+        - "COLABot Cipher"
+      state: "present"
+      ask_variables_on_launch: yes
+      concurrent_jobs_enabled: yes
+      extra_vars:
+        "{{ {'cml_admin_account': '{{ cml_account }}',
+        'kubeconfig': '{{ kubeconfig_from_vault }}',
+        'cml_admin_password': '{{ cml_password }}',
+        'meraki_key': '{{ meraki_auth_vault }}',
+        'networkId': '{{ meraki_netid_vault }}',
+        'wxt_bearer': '{{ wxt_bearer_vault }}',
+        'colabot_cipher': '{{ cipher_vault }}',
+        'vcenter_admin_username': '{{ vcenter_admin_account_vault }}',
+        'vcenter_admin_password': '{{ vcenter_admin_password_vault }}',
+        'aws_access_key': '{{ lookup(\"env\",\"AWS_ACCESS_KEY_ID\") }}',
+        'aws_secret_key': '{{ lookup(\"env\",\"AWS_SECRET_ACCESS_KEY\") }}',
+        'aws_access_key_prod': '{{ aws_prod_key_vault }}',
+        'aws_secret_key_prod': '{{ aws_prod_token_vault }}',
+        'aws_region_prod': '{{ aws_prod_region_vault }}'} }}"
